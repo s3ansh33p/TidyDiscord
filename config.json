@@ -5,8 +5,9 @@
   "production": {
     "guild": "GUILD_ID"
   },
-  "commandPermissions": {
-    "utility": ["ManageMessages"]
+  "commandPermissions": { 
+    "main": ["ManageMessages"],
+    "utility": ["SendMessages"]
   },
   "developers": ["647976088894439454"]
 }
