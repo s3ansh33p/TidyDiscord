@@ -1,0 +1,12 @@
+{
+  "development": {
+    "guild": "647766465176535064"
+  },
+  "production": {
+    "guild": "GUILD_ID"
+  },
+  "commandPermissions": {
+    "utility": ["ManageMessages"]
+  },
+  "developers": ["647976088894439454"]
+}

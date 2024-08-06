@@ -1,0 +1,23 @@
+{
+  "name": "tidydiscord",
+  "version": "0.0.1-alpha.1",
+  "build": "2024-07-15T09:00:36.220Z",
+  "description": "Extending TidyHQ-Tools with a Discord Integration",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node src/index.js",
+    "dev:deploy": "NODE_ENV=development node src/deploy.js",
+    "prod": "NODE_ENV=production node src/index.js",
+    "prod:deploy": "NODE_ENV=production node src/deploy.js"
+  },
+  "author": "Sean McGinty <newfolderlocation@gmail.com>",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "eslint": "^9.8.0"
+  }
+}
