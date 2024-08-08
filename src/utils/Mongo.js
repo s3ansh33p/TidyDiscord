@@ -29,6 +29,7 @@ async function setup(env = "development") {
     const indexes = {
       "discord-servers": {
         id: 1, // name, icon, memberCount, added_at
+        organisation_id: 1
       },
       "discord-users": {
         id: 1, // username, avatar, discriminator, global_name, accent_color, banner_color, auth, added_at
@@ -49,6 +50,32 @@ async function setup(env = "development") {
     Logger.info("Schema created.");
   });
   await closeMongoDB();
+}
+
+async function getOrganisationFromDiscordUserId(discordId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await db.collection("users").findOne({ discord_id: discordId });
+      
+      if (!user) {
+        Logger.warn(`User not found for discord id: ${discordId}`);
+        return reject(new Error("User not found"));
+      }
+
+      const userId = user.id;
+
+      const contact = await db.collection("contacts").findOne({ contact_id_reference: userId });
+
+      if (!contact) {
+        Logger.warn(`Contact not found for user id: ${userId}`);
+        return reject(new Error("Contact not found"));
+      }
+
+      resolve(contact.organization);
+    } catch (error) {
+      reject(error);
+    }
+  });
 }
 
 async function addDiscordServer(server) {
@@ -73,6 +100,34 @@ async function deleteDiscordServer(id) {
     try {
       await db.collection("discord-servers").deleteOne({ id });
       resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function linkDiscordServerToTidyHQ(guildId, organisationId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.collection("discord-servers").updateOne({
+        id: guildId,
+      }, {
+        $set: {
+          organisation_id: organisationId,
+        },
+      });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function getOrganisationIdFromDiscordServerId(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const server = await db.collection("discord-servers").findOne({ id });
+      resolve(server.organisation_id);
     } catch (err) {
       reject(err);
     }
@@ -163,4 +218,4 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, addDiscordServer, deleteDiscordServer, getEvents, getEventSummary };
+module.exports = { connectToMongoDB, db, setup, getOrganisationFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getEvents, getEventSummary };

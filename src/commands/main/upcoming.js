@@ -1,5 +1,5 @@
 const { EmbedBuilder, SlashCommandBuilder } = require('discord.js');
-const { getEventSummary } = require('../../utils/Mongo');
+const { getEventSummary, getOrganisationIdFromDiscordServerId } = require('../../utils/Mongo');
 
 module.exports = {
 	category: 'main',
@@ -9,7 +9,12 @@ module.exports = {
 	async execute(interaction) {
 		let description = '';
 
-		const orgId = "f9afc4215c2b";
+		const orgId = await getOrganisationIdFromDiscordServerId(interaction.guild.id);
+		if (!orgId) {
+			await interaction.reply({ content: "This server is not linked to a TidyHQ organisation.", ephemeral: true });
+			return;
+		};
+
 		const limit = 5;
 		const publicOnly = true;
 		const start_at = new Date().toISOString();
