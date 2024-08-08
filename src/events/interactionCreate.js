@@ -8,6 +8,13 @@ module.exports = {
 		if (!interaction.isChatInputCommand()) return;
 		if (!interaction.channel.permissionsFor(interaction.user).has(PermissionsBitField.Flags.SendMessages)) return;
 
+		// get the guild
+		const guild = interaction.guild;
+		const guildId = guild.id;
+
+		// see if the guild is in the database
+		// const guildData = await db.collection('discord-servers').findOne({ guildId });
+
 		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {

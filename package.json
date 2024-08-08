@@ -6,16 +6,16 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "NODE_ENV=development node src/index.js",
-    "dev:deploy": "NODE_ENV=development node src/deploy.js",
     "prod": "NODE_ENV=production node src/index.js",
-    "prod:deploy": "NODE_ENV=production node src/deploy.js"
+    "cli": "NODE_ENV=production node src/cli.js"
   },
   "author": "Sean McGinty <newfolderlocation@gmail.com>",
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "chalk": "^4.1.2",
     "discord.js": "^14.15.3",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "mongodb": "^6.8.0"
   },
   "devDependencies": {
     "eslint": "^9.8.0"

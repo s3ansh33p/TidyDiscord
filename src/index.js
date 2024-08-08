@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const Logger = require('./utils/Logger');
+const { connectToMongoDB } = require('./utils/Mongo');
+
 const config = require('../config.json');
 require('dotenv').config();
 
@@ -46,11 +48,16 @@ for (const file of eventFiles) {
 	} else {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
+	Logger.info(`Load Event: ${event.name}`);
 }
 
 process.on('uncaughtException', function (err) {
 		Logger.error('!! [uncaughtException]', err);
 });
 
-Logger.info('Logging in...');
-client.login(DISCORD_TOKEN);
+connectToMongoDB().then(() => {
+	Logger.info('Logging in...');
+	client.login(DISCORD_TOKEN);
+}).catch(err => {
+	Logger.error('Failed to connect to MongoDB', err);
+});
