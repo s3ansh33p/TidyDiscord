@@ -7,6 +7,6 @@ module.exports = {
 		.setDescription('Replies with Pong!'),
 	async execute(interaction) {
 		const messageDate = interaction.createdTimestamp;
-		await interaction.reply(`🏓 Latency is ${Date.now() - messageDate}ms.`);
+		await interaction.reply({ content: `🏓 Latency is ${Date.now() - messageDate}ms.`, ephemeral: true });
 	},
 };

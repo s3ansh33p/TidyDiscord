@@ -55,7 +55,6 @@ async function setup(env = "development") {
 async function getOrganisationsFromDiscordUserId(discordId) {
   return new Promise(async (resolve, reject) => {
     try {
-      // const users = await db.collection("users").findOne({ discord_id: discordId });
       const users = await db.collection("users").find({ discord_id: discordId }).toArray();
       
       if (!users || users.length === 0) {
@@ -129,6 +128,34 @@ async function getOrganisationIdFromDiscordServerId(id) {
     try {
       const server = await db.collection("discord-servers").findOne({ id });
       resolve(server.organisation_id);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function setDiscordPermissionRoles(guildId, roles) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.collection("discord-servers").updateOne({
+        id: guildId,
+      }, {
+        $set: {
+          permission_roles: roles,
+        },
+      });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function getDiscordServer(guildId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const server = await db.collection("discord-servers").findOne({ id: guildId });
+      resolve(server);
     } catch (err) {
       reject(err);
     }
@@ -219,4 +246,4 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getEvents, getEventSummary };
+module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary };

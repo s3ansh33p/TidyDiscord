@@ -3,7 +3,7 @@ const { getOrganisationsFromDiscordUserId, linkDiscordServerToTidyHQ } = require
 const Logger = require('../../utils/Logger');
 
 module.exports = {
-	category: 'main',
+	category: 'setup',
 	data: new SlashCommandBuilder()
 		.setName('link')
 		.setDescription('Links a discord server to your TidyHQ account.'),
@@ -25,10 +25,15 @@ module.exports = {
       const row = new ActionRowBuilder()
         .addComponents(linkBtn);
 
-      return interaction.reply({
+      const message = interaction.reply({
         content: "Unable to get organisation. Have you linked your account?",
-        components: [row]
+        components: [row],
+        fetchReply: true
       });
+
+      return setTimeout(() => {
+        message.then(m => m.delete());
+      }, 10000);
     }
 
     const select = new StringSelectMenuBuilder()
@@ -58,17 +63,26 @@ module.exports = {
       const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60000 }); //60 seconds
 
       if (confirmation.isButton() && confirmation.customId === 'cancel') {
-        await confirmation.update({ content: 'Linking cancelled.', components: [] });
+        const message = await confirmation.update({ content: 'Linking cancelled.', components: [] });
+        setTimeout(() => {
+          message.delete();
+        }, 10000);
       } else if (confirmation.isStringSelectMenu()) {
         const organisationId = confirmation.values[0];
         const guildId = interaction.guild.id;
         await linkDiscordServerToTidyHQ(guildId, organisationId);
         Logger.info(`Server ${guildId} linked to organisation: ${organisationId}`);
-        await confirmation.update({ content: 'Server linked!', components: [] });
+        const message = await confirmation.update({ content: 'Server linked!', components: [] });
+        setTimeout(() => {
+          message.delete();
+        }, 10000);
       }
     } catch (error) {
       Logger.error(error.message);
-      await interaction.followUp({ content: 'Linking not confirmed in 1 minute, try again.', components: [] });
+      const message = await interaction.followUp({ content: 'Linking not confirmed in 1 minute, try again.', components: [] });
+      setTimeout(() => {
+        message.delete();
+      }, 10000);
     }
 	},
 };

@@ -6,8 +6,10 @@
     "guild": "900274647927513158"
   },
   "commandPermissions": { 
-    "main": ["ManageMessages"],
-    "utility": ["SendMessages"]
+    "main": ["SendMessages"],
+    "setup": ["ManageGuild", "ManageRoles"],
+    "utility": ["SendMessages"],
+    "bypass": ["ManageGuild", "ManageRoles"]
   },
   "developers": ["647976088894439454"]
 }

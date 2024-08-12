@@ -1,4 +1,5 @@
 const { Events, PermissionsBitField } = require('discord.js');
+const { getDiscordServer } = require('../utils/Mongo');
 const Logger = require('../utils/Logger');
 const config = require('../../config.json');
 
@@ -11,10 +12,7 @@ module.exports = {
 		// get the guild
 		const guild = interaction.guild;
 		const guildId = guild.id;
-
-		// see if the guild is in the database
-		// const guildData = await db.collection('discord-servers').findOne({ guildId });
-
+		
 		const command = interaction.client.commands.get(interaction.commandName);
 
 		if (!command) {
@@ -27,7 +25,44 @@ module.exports = {
 
 			if (!config.developers.includes(interaction.user.id)) {
 				Logger.warn(`User ${interaction.user.tag} tried to run command ${interaction.commandName}, but the user is not a developer.`);
-				return await interaction.reply('You are not a developer.');
+				return await interaction.reply({ content: 'You are not a developer.', ephemeral: true });
+			}
+
+		} else if (commandCategory === 'main') {
+			
+			const discordServer = await getDiscordServer(guildId);
+			if (!discordServer) {
+				await interaction.reply({ content: 'Discord server not linked.', ephemeral: true });
+				return;
+			}
+
+			// check if can bypass permissions
+			const bypassPermissions = config.commandPermissions.bypass;
+			const requiredPermissionsBitField = new PermissionsBitField(
+				Array.from(bypassPermissions, permission => PermissionsBitField.Flags[permission])
+			);
+
+			const canBypassPermissions = interaction.channel.permissionsFor(interaction.user).has(requiredPermissionsBitField);
+
+			if (!canBypassPermissions) {
+				// check roles
+
+				if (!discordServer.permission_roles) {
+					Logger.warn(`Command ${interaction.commandName} does not have any permissions set.`);
+					return await interaction.reply({ content: 'You are not allowed to run this command.', ephemeral: true });
+				}
+				
+				const requiredPermissionRoles = discordServer.permission_roles;
+				const userRoles = interaction.member.roles.cache;
+				const hasPermission = requiredPermissionRoles.some(role => userRoles.has(role));
+				if (!hasPermission) {
+					Logger.warn(`User ${interaction.user.tag} tried to run command ${interaction.commandName} in channel ${interaction.channel.name}, but the user is missing permissions.`);
+					return await interaction.reply({ content: `You are not allowed to run this command`, ephemeral: true });
+				// } else {
+					// Logger.info(`User ${interaction.user.tag} has one of ${requiredPermissionRoles.map(role => `<@&${role}>`).join(', ')}.`);
+				}
+			// } else {
+				// Logger.info(`User ${interaction.user.tag} bypassed permissions for command ${interaction.commandName}.`);
 			}
 
 		} else {
@@ -35,7 +70,7 @@ module.exports = {
 			const requiredPermissionStrings = config.commandPermissions[commandCategory];
 			if (!requiredPermissionStrings) {
 				Logger.warn(`Command ${interaction.commandName} does not have any permissions set.`);
-				return await interaction.reply('This command does not have any permissions set.');
+				return await interaction.reply({ content: 'This command does not have any permissions set.', ephemeral: true });
 			}
 
 			const requiredPermissionsBitField = new PermissionsBitField(
@@ -44,7 +79,7 @@ module.exports = {
 
 			if (!interaction.channel.permissionsFor(interaction.user).has(requiredPermissionsBitField)) {
 				Logger.warn(`User ${interaction.user.tag} tried to run command ${interaction.commandName} in channel ${interaction.channel.name}, but the user is missing permissions.`);
-				return await interaction.reply(`You need the following permissions to run this command: ${requiredPermissionStrings.join(', ')}`);
+				return await interaction.reply({ content: `You need the following permissions to run this command: ${requiredPermissionStrings.join(', ')}`, ephemeral: true });
 			}
 
 		}
