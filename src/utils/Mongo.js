@@ -52,26 +52,27 @@ async function setup(env = "development") {
   await closeMongoDB();
 }
 
-async function getOrganisationFromDiscordUserId(discordId) {
+async function getOrganisationsFromDiscordUserId(discordId) {
   return new Promise(async (resolve, reject) => {
     try {
-      const user = await db.collection("users").findOne({ discord_id: discordId });
+      // const users = await db.collection("users").findOne({ discord_id: discordId });
+      const users = await db.collection("users").find({ discord_id: discordId }).toArray();
       
-      if (!user) {
+      if (!users || users.length === 0) {
         Logger.warn(`User not found for discord id: ${discordId}`);
         return reject(new Error("User not found"));
       }
 
-      const userId = user.id;
-
-      const contact = await db.collection("contacts").findOne({ contact_id_reference: userId });
-
-      if (!contact) {
-        Logger.warn(`Contact not found for user id: ${userId}`);
-        return reject(new Error("Contact not found"));
+      let orgs = [];
+      for (const user of users) {
+        const userId = user.id;
+        const contact = await db.collection("contacts").findOne({ contact_id_reference: userId });
+        if (contact) {
+          orgs.push(contact.organization);
+        }
       }
 
-      resolve(contact.organization);
+      resolve(orgs);
     } catch (error) {
       reject(error);
     }
@@ -218,4 +219,4 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, getOrganisationFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getEvents, getEventSummary };
+module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getEvents, getEventSummary };

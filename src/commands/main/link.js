@@ -1,5 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder } = require('discord.js');
-const { getOrganisationFromDiscordUserId, linkDiscordServerToTidyHQ } = require('../../utils/Mongo');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, SlashCommandBuilder } = require('discord.js');
+const { getOrganisationsFromDiscordUserId, linkDiscordServerToTidyHQ } = require('../../utils/Mongo');
 const Logger = require('../../utils/Logger');
 
 module.exports = {
@@ -11,9 +11,9 @@ module.exports = {
 		// get user id
     const discordId = interaction.user.id;
     // get organisation
-    let organisation;
+    let orgs;
     try {
-      organisation = await getOrganisationFromDiscordUserId(discordId);
+      orgs = await getOrganisationsFromDiscordUserId(discordId);
     } catch (error) {
       Logger.error(error);
 
@@ -30,36 +30,41 @@ module.exports = {
         components: [row]
       });
     }
-    
-    const confirm = new ButtonBuilder()
-			.setCustomId('link')
-			.setLabel('Link')
-			.setStyle(ButtonStyle.Primary);
 
+    const select = new StringSelectMenuBuilder()
+      .setCustomId('organisation')
+      .setPlaceholder('Select an organisation')
+      .addOptions(orgs.map(org => new StringSelectMenuOptionBuilder().setLabel(org.name).setValue(org.id)));
+    
 		const cancel = new ButtonBuilder()
 			.setCustomId('cancel')
 			.setLabel('Cancel')
 			.setStyle(ButtonStyle.Secondary);
 
 		const row = new ActionRowBuilder()
-			.addComponents(confirm, cancel);
+			.addComponents(select);
+
+    const btnRow = new ActionRowBuilder()
+      .addComponents(cancel);
 
     // button to confirm and cancel linking
 		const response = await interaction.reply({
-      content: `Are you sure you want to link this server to [${organisation.name}](https://${organisation.domain_prefix}.tidyhq.com)?`,
-      components: [row]
+      content: `Select an organisation to link to this server.`,
+      components: [row, btnRow]
     });
 
     const collectorFilter = i => i.user.id === interaction.user.id;
     try {
       const confirmation = await response.awaitMessageComponent({ filter: collectorFilter, time: 60000 }); //60 seconds
 
-      if (confirmation.customId === 'link') {
-        // link the server
-        await linkDiscordServerToTidyHQ(interaction.guild.id, organisation.id);
-        await confirmation.update({ content: 'Server linked!', components: [] });
-      } else {
+      if (confirmation.isButton() && confirmation.customId === 'cancel') {
         await confirmation.update({ content: 'Linking cancelled.', components: [] });
+      } else if (confirmation.isStringSelectMenu()) {
+        const organisationId = confirmation.values[0];
+        const guildId = interaction.guild.id;
+        await linkDiscordServerToTidyHQ(guildId, organisationId);
+        Logger.info(`Server ${guildId} linked to organisation: ${organisationId}`);
+        await confirmation.update({ content: 'Server linked!', components: [] });
       }
     } catch (error) {
       Logger.error(error.message);
