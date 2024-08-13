@@ -40,7 +40,7 @@ module.exports = {
 				ticketsSummary += `💵 Total: ${totalTickets} tickets sold - $${ticketSales.toFixed(2)}`;
 			}
 			
-			const eventName = `**${event.name}** - [View](https://comssa.tidyhq.com/public/schedule/events/${event.id}) - [Edit](https://comssa.tidyhq.com/schedule/events/${event.id})`;
+			const eventName = `**${event.name}** - [View](https://comssa.tidyhq.com/public/schedule/events/${event.id}) - [Edit](https://comssa.tidyhq.com/schedule/events/${event.id}) - [Scan](https://tidy.mcginty.io/panel/events/${event.id})`;
 
 			description += `${eventName}\n⏰ <t:${Math.floor(new Date(event.start_at).getTime() / 1000)}:f>\n🗺️ ${event.location ? event.location : 'No location set'}\n${ticketsSummary}\n\n`;
 		}
