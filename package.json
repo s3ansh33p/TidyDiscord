@@ -1,6 +1,6 @@
 {
   "name": "tidydiscord",
-  "version": "0.0.1-alpha.1",
+  "version": "1.0.0-beta.2",
   "build": "2024-07-15T09:00:36.220Z",
   "description": "Extending TidyHQ-Tools with a Discord Integration",
   "main": "src/index.js",

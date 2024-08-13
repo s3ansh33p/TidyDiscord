@@ -45,6 +45,10 @@ module.exports = {
 			description += `${eventName}\n⏰ <t:${Math.floor(new Date(event.start_at).getTime() / 1000)}:f>\n🗺️ ${event.location ? event.location : 'No location set'}\n${ticketsSummary}\n\n`;
 		}
 
+		if (description === '') {
+			description = 'No upcoming events.';
+		}
+
 		const embed = new EmbedBuilder()
 			.setTitle("Upcoming Events")
 			.setDescription(description)

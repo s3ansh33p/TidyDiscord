@@ -71,6 +71,9 @@ async function getOrganisationsFromDiscordUserId(discordId) {
         }
       }
 
+      // SORT ORGS BY NAME
+      orgs = orgs.sort((a, b) => a.name.localeCompare(b.name || ""));
+
       resolve(orgs);
     } catch (error) {
       reject(error);
