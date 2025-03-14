@@ -218,7 +218,7 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
         .collection("events")
         .aggregate([
           { $match: args },
-          { $sort: { start_at: -1 } },
+          { $sort: { start_at: 1 } },
           { $limit: limit },
           {
             $lookup: {
