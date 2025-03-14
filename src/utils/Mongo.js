@@ -220,6 +220,7 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
           { $match: args },
           { $sort: { start_at: 1 } },
           { $limit: limit },
+          { $sort: { start_at: -1 } },
           {
             $lookup: {
               from: "ticket-info",
