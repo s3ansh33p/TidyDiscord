@@ -2,7 +2,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('
 const { getEventSummary } = require('../utils/Mongo');
 
 async function buildUpcomingComponents(orgId) {
-  const limit = 5;
+  const limit = 10;
   const publicOnly = true;
   const start_at = new Date().toISOString();
   const eventData = await getEventSummary(orgId, limit, publicOnly, start_at);
