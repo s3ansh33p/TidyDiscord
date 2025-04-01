@@ -21,7 +21,7 @@ async function buildUpcomingComponents(orgId) {
         const isFree = ticket.amount === '0.0';
         if (!isFree) ticketSales += parseFloat(ticket.amount) * ticket.quantity_sold;
         const ticketCost = isFree ? 'Free' : `$${parseFloat(ticket.amount).toFixed(2)}`;
-        const ticketSummary = `${ticket.quantity_sold} sold - ${ticketCost}`;
+        const ticketSummary = `${ticket.quantity_sold}${ticket.initial_quantity ? "/" + ticket.initial_quantity : ""} sold - ${ticketCost}`;
         ticketsSummary += `🎟️ ${ticket.name}: ${ticketSummary}\n`;
         totalTickets += ticket.quantity_sold;
       }
