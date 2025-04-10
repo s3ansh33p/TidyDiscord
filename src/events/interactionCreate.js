@@ -7,7 +7,7 @@ const config = require('../../config.json');
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
-		if (!interaction.channel.permissionsFor(interaction.user).has(PermissionsBitField.Flags.SendMessages)) return;
+		// if (!interaction.channel.permissionsFor(interaction.user).has(PermissionsBitField.Flags.SendMessages)) return;
 
 		if (interaction.isChatInputCommand()) {
 			// get the guild
