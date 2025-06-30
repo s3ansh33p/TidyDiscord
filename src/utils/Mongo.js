@@ -137,6 +137,44 @@ async function getOrganisationIdFromDiscordServerId(id) {
   });
 }
 
+async function getOrganisationFromDiscordServerId(id) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const result = await db.collection("discord-servers").aggregate([
+        { $match: { id: id } },
+        {
+          $lookup: {
+            from: "organisations",
+            localField: "organisation_id",
+            foreignField: "id",
+            as: "organisation"
+          }
+        },
+        {
+          $unwind: "$organisation"
+        },
+        {
+          $project: {
+            _id: 0,
+            organisation_id: 1,
+            "organisation.id": 1,
+            "organisation.name": 1,
+            "organisation.domain_prefix": 1
+          }
+        }
+      ]).toArray();
+
+      if (result.length === 0) {
+        return resolve(null);
+      }
+
+      resolve(result[0].organisation);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
 async function setDiscordPermissionRoles(guildId, roles) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -250,4 +288,4 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary };
+module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getOrganisationFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary };

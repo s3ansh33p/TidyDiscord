@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { getOrganisationIdFromDiscordServerId } = require('../../utils/Mongo');
+const { getOrganisationFromDiscordServerId } = require('../../utils/Mongo');
 const { buildUpcomingComponents } = require('../../functions/index');
 
 module.exports = {
@@ -8,12 +8,12 @@ module.exports = {
 		.setName('upcoming')
 		.setDescription('Lists upcoming events.'),
 	async execute(interaction) {
-		const orgId = await getOrganisationIdFromDiscordServerId(interaction.guild.id);
-		if (!orgId) {
+		const orgDetails = await getOrganisationFromDiscordServerId(interaction.guild.id);
+		if (!orgDetails) {
 			await interaction.reply({ content: "This server is not linked to a TidyHQ organisation.", ephemeral: true });
 			return;
 		};
-		const comps = await buildUpcomingComponents(orgId);
+		const comps = await buildUpcomingComponents(orgDetails);
 		await interaction.reply(comps);
 	},
 };

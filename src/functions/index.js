@@ -1,11 +1,11 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { getEventSummary } = require('../utils/Mongo');
 
-async function buildUpcomingComponents(orgId) {
+async function buildUpcomingComponents(orgDetails) {
   const limit = 10;
   const publicOnly = true;
   const start_at = new Date().toISOString();
-  const eventData = await getEventSummary(orgId, limit, publicOnly, start_at);
+  const eventData = await getEventSummary(orgDetails.id, limit, publicOnly, start_at);
   // console.log(eventData);
 
   let description = '';
@@ -28,7 +28,7 @@ async function buildUpcomingComponents(orgId) {
       ticketsSummary += `💵 Total: ${totalTickets} tickets sold - $${ticketSales.toFixed(2)}`;
     }
     
-    const eventName = `**${event.name}** - [View](https://comssa.tidyhq.com/public/schedule/events/${event.id}) - [Edit](https://comssa.tidyhq.com/schedule/events/${event.id}) - [Scan](https://tidy.mcginty.io/panel/events/${event.id})`;
+    const eventName = `**${event.name}** - [View](https://${orgDetails.domain_prefix}.tidyhq.com/public/schedule/events/${event.id}) - [Edit](https://${orgDetails.domain_prefix}.tidyhq.com/schedule/events/${event.id}) - [Scan](https://tidy.mcginty.io/panel/events/${event.id})`;
 
     description += `${eventName}\n⏰ <t:${Math.floor(new Date(event.start_at).getTime() / 1000)}:f>\n🗺️ ${event.location ? event.location : 'No location set'}\n${ticketsSummary}\n\n`;
   }
