@@ -101,18 +101,19 @@ module.exports = {
 			const button = interaction.customId;
 			// get the message it was clicked on
 			const messageId = interaction.message.id;
+			Logger.info(`Interaction to ${button} - guild ${interaction.guild.id} - user ${interaction.user.tag}`)
 			if (button === 'upcoming:delete') {
 				const message = await interaction.channel.messages.fetch(messageId);
 				message.delete();
 			} else if (button === 'upcoming:refresh') {
+				// finish interaction
+				await interaction.deferUpdate();
 				const message = await interaction.channel.messages.fetch(messageId);
 				await message.edit({ content: 'Refreshing...', components: [] });
 				const orgId = await getOrganisationIdFromDiscordServerId(interaction.guild.id);
 				const comps = await buildUpcomingComponents(orgId);
 				const refreshedString = `Refreshed <t:${Math.floor(Date.now() / 1000)}:R>`;
 				await message.edit({ content: refreshedString, components: comps.components, embeds: comps.embeds });
-				// finish interaction
-				await interaction.deferUpdate();
 			}
 		}
 	},

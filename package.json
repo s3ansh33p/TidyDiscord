@@ -1,7 +1,7 @@
 {
   "name": "tidydiscord",
-  "version": "1.0.1-beta.3",
-  "build": "2024-07-15T09:00:36.220Z",
+  "version": "1.0.2",
+  "build": "2025-10-09T14:47:27.109Z",
   "description": "Extending TidyHQ-Tools with a Discord Integration",
   "main": "src/index.js",
   "scripts": {
