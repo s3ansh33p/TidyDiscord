@@ -1,5 +1,5 @@
 const { Events, PermissionsBitField } = require('discord.js');
-const { getDiscordServer, getOrganisationIdFromDiscordServerId } = require('../utils/Mongo');
+const { getDiscordServer, getOrganisationFromDiscordServerId } = require('../utils/Mongo');
 const { buildUpcomingComponents } = require('../functions/index');
 const Logger = require('../utils/Logger');
 const config = require('../../config.json');
@@ -110,8 +110,8 @@ module.exports = {
 				await interaction.deferUpdate();
 				const message = await interaction.channel.messages.fetch(messageId);
 				await message.edit({ content: 'Refreshing...', components: [] });
-				const orgId = await getOrganisationIdFromDiscordServerId(interaction.guild.id);
-				const comps = await buildUpcomingComponents(orgId);
+				const orgDetails = await getOrganisationFromDiscordServerId(interaction.guild.id);
+				const comps = await buildUpcomingComponents(orgDetails);
 				const refreshedString = `Refreshed <t:${Math.floor(Date.now() / 1000)}:R>`;
 				await message.edit({ content: refreshedString, components: comps.components, embeds: comps.embeds });
 			}
