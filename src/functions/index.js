@@ -43,18 +43,13 @@ async function buildUpcomingComponents(orgDetails, eventData = null) {
     .setTitle("Upcoming Events")
     .setDescription(description)
 
-  const refresh = new ButtonBuilder()
-    .setCustomId('upcoming:refresh')
-    .setLabel('🔄 Refresh')
-    .setStyle(ButtonStyle.Secondary);
-  
   const deleteBtn = new ButtonBuilder()
     .setCustomId('upcoming:delete')
     .setLabel('❌ Delete Message')
     .setStyle(ButtonStyle.Secondary);
 
   const row = new ActionRowBuilder()
-    .addComponents(refresh, deleteBtn);
+    .addComponents(deleteBtn);
 
   return { embeds: [embed], components: [row] };
 }
@@ -82,18 +77,13 @@ async function buildUpcomingPublicComponents(orgDetails, eventData = null) {
     .setTitle("Upcoming Events")
     .setDescription(description)
 
-  const refresh = new ButtonBuilder()
-    .setCustomId('upcoming:refresh:public')
-    .setLabel('🔄 Refresh')
-    .setStyle(ButtonStyle.Secondary);
-
   const deleteBtn = new ButtonBuilder()
     .setCustomId('upcoming:delete')
     .setLabel('❌ Delete Message')
     .setStyle(ButtonStyle.Secondary);
 
   const row = new ActionRowBuilder()
-    .addComponents(refresh, deleteBtn);
+    .addComponents(deleteBtn);
 
   return { embeds: [embed], components: [row] };
 }
