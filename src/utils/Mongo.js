@@ -118,7 +118,7 @@ async function linkDiscordServerToTidyHQ(guildId, organisationId) {
         $set: {
           organisation_id: organisationId,
         },
-      });
+      }, { upsert: true });
       resolve();
     } catch (err) {
       reject(err);
