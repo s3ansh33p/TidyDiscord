@@ -1,5 +1,5 @@
 const { Events, PermissionsBitField } = require('discord.js');
-const { getDiscordServer, getOrganisationFromDiscordServerId } = require('../utils/Mongo');
+const { getDiscordServer, getOrganisationFromDiscordServerId, removeUpcomingMessageRef } = require('../utils/Mongo');
 const { buildUpcomingComponents } = require('../functions/index');
 const Logger = require('../utils/Logger');
 const config = require('../../config.json');
@@ -104,7 +104,8 @@ module.exports = {
 			Logger.info(`Interaction to ${button} - guild ${interaction.guild.id} - user ${interaction.user.tag}`)
 			if (button === 'upcoming:delete') {
 				const message = await interaction.channel.messages.fetch(messageId);
-				message.delete();
+				await message.delete();
+				await removeUpcomingMessageRef(interaction.guild.id, messageId);
 			} else if (button === 'upcoming:refresh') {
 				// finish interaction
 				await interaction.deferUpdate();

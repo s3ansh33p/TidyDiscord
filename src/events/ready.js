@@ -1,5 +1,6 @@
 const { Events, ActivityType, PresenceUpdateStatus } = require('discord.js');
 const Logger = require('../utils/Logger');
+const setupQueueListener = require('../utils/QueueListener');
 require('dotenv').config();
 
 const IS_DEV = process.env.NODE_ENV === 'development';
@@ -25,6 +26,8 @@ module.exports = {
 
     // Set the bot's activity
     client.user.setPresence(presence);
-    
+
+    setupQueueListener(client);
+
 	},
 };

@@ -288,4 +288,49 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getOrganisationFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary };
+async function getDiscordServersByOrganisationId(orgId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const servers = await db.collection("discord-servers").find({ organisation_id: orgId }).toArray();
+      resolve(servers);
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function saveUpcomingMessageRef(guildId, channelId, messageId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.collection("discord-servers").updateOne({
+        id: guildId,
+      }, {
+        $push: {
+          upcoming_messages: { channel_id: channelId, message_id: messageId },
+        },
+      });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+async function removeUpcomingMessageRef(guildId, messageId) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.collection("discord-servers").updateOne({
+        id: guildId,
+      }, {
+        $pull: {
+          upcoming_messages: { message_id: messageId },
+        },
+      });
+      resolve();
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getOrganisationFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary, getDiscordServersByOrganisationId, saveUpcomingMessageRef, removeUpcomingMessageRef };

@@ -12,6 +12,7 @@
   "author": "Sean McGinty <newfolderlocation@gmail.com>",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "bull": "^4.12.4",
     "chalk": "^4.1.2",
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
