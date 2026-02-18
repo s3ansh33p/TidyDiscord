@@ -1,6 +1,6 @@
 const { Events, PermissionsBitField } = require('discord.js');
 const { getDiscordServer, getOrganisationFromDiscordServerId, removeUpcomingMessageRef } = require('../utils/Mongo');
-const { buildUpcomingComponents } = require('../functions/index');
+const { buildUpcomingComponents, buildUpcomingPublicComponents } = require('../functions/index');
 const Logger = require('../utils/Logger');
 const config = require('../../config.json');
 
@@ -106,13 +106,15 @@ module.exports = {
 				const message = await interaction.channel.messages.fetch(messageId);
 				await message.delete();
 				await removeUpcomingMessageRef(interaction.guild.id, messageId);
-			} else if (button === 'upcoming:refresh') {
+			} else if (button === 'upcoming:refresh' || button === 'upcoming:refresh:public') {
 				// finish interaction
 				await interaction.deferUpdate();
 				const message = await interaction.channel.messages.fetch(messageId);
 				await message.edit({ content: 'Refreshing...', components: [] });
 				const orgDetails = await getOrganisationFromDiscordServerId(interaction.guild.id);
-				const comps = await buildUpcomingComponents(orgDetails);
+				const comps = button === 'upcoming:refresh:public'
+					? await buildUpcomingPublicComponents(orgDetails)
+					: await buildUpcomingComponents(orgDetails);
 				const refreshedString = `Refreshed <t:${Math.floor(Date.now() / 1000)}:R>`;
 				await message.edit({ content: refreshedString, components: comps.components, embeds: comps.embeds });
 			}

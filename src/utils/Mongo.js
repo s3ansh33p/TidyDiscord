@@ -299,14 +299,14 @@ async function getDiscordServersByOrganisationId(orgId) {
   });
 }
 
-async function saveUpcomingMessageRef(guildId, channelId, messageId) {
+async function saveUpcomingMessageRef(guildId, channelId, messageId, isPublic = false) {
   return new Promise(async (resolve, reject) => {
     try {
       await db.collection("discord-servers").updateOne({
         id: guildId,
       }, {
         $push: {
-          upcoming_messages: { channel_id: channelId, message_id: messageId },
+          upcoming_messages: { channel_id: channelId, message_id: messageId, public: isPublic },
         },
       });
       resolve();

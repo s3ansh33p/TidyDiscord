@@ -1,7 +1,7 @@
 const Queue = require('bull');
 const Logger = require('./Logger');
-const { getDiscordServersByOrganisationId, getOrganisationFromDiscordServerId, removeUpcomingMessageRef } = require('./Mongo');
-const { buildUpcomingComponents } = require('../functions/index');
+const { getDiscordServersByOrganisationId, getOrganisationFromDiscordServerId, removeUpcomingMessageRef, getEventSummary } = require('./Mongo');
+const { buildUpcomingComponents, buildUpcomingPublicComponents } = require('../functions/index');
 
 module.exports = function setupQueueListener(client) {
     const workerQueue = new Queue('Worker Queue', {
@@ -27,10 +27,15 @@ module.exports = function setupQueueListener(client) {
                 if (!refs.length) continue;
                 const orgDetails = await getOrganisationFromDiscordServerId(server.id);
                 if (!orgDetails) continue;
-                const comps = await buildUpcomingComponents(orgDetails);
+                const eventData = await getEventSummary(orgDetails.id, 10, true, new Date().toISOString());
+                const publicComps = await buildUpcomingPublicComponents(orgDetails, eventData);
+                const privateComps = await buildUpcomingComponents(orgDetails, eventData);
                 const refreshedString = `Refreshed <t:${Math.floor(Date.now() / 1000)}:R>`;
+                const isPackEvent = job.name !== 'Webhook.event.updated';
                 for (const ref of refs) {
+                    if (isPackEvent && ref.public) continue;
                     try {
+                        const comps = ref.public ? publicComps : privateComps;
                         const channel = await client.channels.fetch(ref.channel_id);
                         const message = await channel.messages.fetch(ref.message_id);
                         await message.edit({ content: refreshedString, embeds: comps.embeds, components: comps.components });
@@ -41,7 +46,9 @@ module.exports = function setupQueueListener(client) {
                     }
                 }
             }
-            Logger.info(`[Queue] ${job.name} org=${orgId} servers=${servers.length} updated=${updated} removed=${removed}`);
+            if (updated > 0 || removed > 0) {
+                Logger.info(`[Queue] ${job.name} org=${orgId} updated=${updated} removed=${removed}`);
+            }
         }
     });
 

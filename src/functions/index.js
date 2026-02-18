@@ -1,11 +1,13 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { getEventSummary } = require('../utils/Mongo');
 
-async function buildUpcomingComponents(orgDetails) {
-  const limit = 10;
-  const publicOnly = true;
-  const start_at = new Date().toISOString();
-  const eventData = await getEventSummary(orgDetails.id, limit, publicOnly, start_at);
+async function buildUpcomingComponents(orgDetails, eventData = null) {
+  if (!eventData) {
+    const limit = 10;
+    const publicOnly = true;
+    const start_at = new Date().toISOString();
+    eventData = await getEventSummary(orgDetails.id, limit, publicOnly, start_at);
+  }
   // console.log(eventData);
 
   let description = '';
@@ -57,6 +59,46 @@ async function buildUpcomingComponents(orgDetails) {
   return { embeds: [embed], components: [row] };
 }
 
+async function buildUpcomingPublicComponents(orgDetails, eventData = null) {
+  if (!eventData) {
+    const limit = 10;
+    const publicOnly = true;
+    const start_at = new Date().toISOString();
+    eventData = await getEventSummary(orgDetails.id, limit, publicOnly, start_at);
+  }
+
+  let description = '';
+  for (let eventIdx = eventData.length - 1; eventIdx >= 0; eventIdx--) {
+    const event = eventData[eventIdx];
+    const eventName = `[**${event.name}**](https://${orgDetails.domain_prefix}.tidyhq.com/public/schedule/events/${event.id})`;
+    description += `${eventName}\n⏰ <t:${Math.floor(new Date(event.start_at).getTime() / 1000)}:f>\n🗺️ ${event.location ? event.location : 'No location set'}\n\n`;
+  }
+
+  if (description === '') {
+    description = 'No upcoming events.';
+  }
+
+  const embed = new EmbedBuilder()
+    .setTitle("Upcoming Events")
+    .setDescription(description)
+
+  const refresh = new ButtonBuilder()
+    .setCustomId('upcoming:refresh:public')
+    .setLabel('🔄 Refresh')
+    .setStyle(ButtonStyle.Secondary);
+
+  const deleteBtn = new ButtonBuilder()
+    .setCustomId('upcoming:delete')
+    .setLabel('❌ Delete Message')
+    .setStyle(ButtonStyle.Secondary);
+
+  const row = new ActionRowBuilder()
+    .addComponents(refresh, deleteBtn);
+
+  return { embeds: [embed], components: [row] };
+}
+
 module.exports = {
-  buildUpcomingComponents
+  buildUpcomingComponents,
+  buildUpcomingPublicComponents
 };
