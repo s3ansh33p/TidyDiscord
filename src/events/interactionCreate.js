@@ -102,6 +102,30 @@ module.exports = {
 			const messageId = interaction.message.id;
 			Logger.info(`Interaction to ${button} - guild ${interaction.guild.id} - user ${interaction.user.tag}`)
 			if (button === 'upcoming:delete') {
+				const discordServer = await getDiscordServer(interaction.guild.id);
+				if (!discordServer) {
+					await interaction.reply({ content: 'Discord server not linked.', ephemeral: true });
+					return;
+				}
+
+				const bypassPermissions = config.commandPermissions.bypass;
+				const requiredPermissionsBitField = new PermissionsBitField(
+					Array.from(bypassPermissions, permission => PermissionsBitField.Flags[permission])
+				);
+				const canBypassPermissions = interaction.channel.permissionsFor(interaction.user).has(requiredPermissionsBitField);
+
+				if (!canBypassPermissions) {
+					if (!discordServer.permission_roles) {
+						return await interaction.reply({ content: 'You are not allowed to delete this message.', ephemeral: true });
+					}
+					const userRoles = interaction.member.roles.cache;
+					const hasPermission = discordServer.permission_roles.some(role => userRoles.has(role));
+					if (!hasPermission) {
+						Logger.warn(`User ${interaction.user.tag} tried to delete upcoming message in guild ${interaction.guild.id}, but is missing permissions.`);
+						return await interaction.reply({ content: 'You are not allowed to delete this message.', ephemeral: true });
+					}
+				}
+
 				const message = await interaction.channel.messages.fetch(messageId);
 				await message.delete();
 				await removeUpcomingMessageRef(interaction.guild.id, messageId);
