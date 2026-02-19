@@ -24,12 +24,12 @@ module.exports = {
 			permissionRolesMap[role] = true;
 		});
 
-		const roles = interaction.guild.roles.cache.filter(role => role.name !== '@everyone');
+		const roles = interaction.guild.roles.cache.filter(role => role.name !== '@everyone').sort((a, b) => b.position - a.position);
 		const options = roles.map(role => ({
 			label: role.name,
 			value: role.id,
 			default: permissionRolesMap[role.id] ? true : false
-		}));
+		})).slice(0, 25);
 
 		const select = new StringSelectMenuBuilder()
 			.setCustomId('permissions')
