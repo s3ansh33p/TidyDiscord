@@ -247,7 +247,7 @@ async function getEventSummary(id, limit, publicOnly = true, start_at = null) {
         args.public = true;
       }
       if (start_at) {
-        args.start_at = {
+        args.end_at = {
           $gte: new Date(start_at),
         };
       }
