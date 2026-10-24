@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const Logger = require('./utils/Logger');
-const { connectToMongoDB } = require('./utils/Mongo');
+const { connectToMongoDB, closeMongoDB } = require('./utils/Mongo');
 
 const config = require('../config.json');
 require('dotenv').config();
@@ -54,6 +54,21 @@ for (const file of eventFiles) {
 process.on('uncaughtException', function (err) {
 		Logger.error('!! [uncaughtException]', err);
 });
+
+let shuttingDown = false;
+async function shutdown() {
+	if (shuttingDown) return;
+	shuttingDown = true;
+	// Docker sends SIGKILL 10s after SIGTERM.
+	setTimeout(() => process.exit(1), 8000).unref();
+	Logger.info('Shutting down');
+	await client.destroy();
+	await Promise.allSettled([client.workerQueue?.close(), closeMongoDB()]);
+	process.exit(0);
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
 connectToMongoDB().then(() => {
 	Logger.info('Logging in...');

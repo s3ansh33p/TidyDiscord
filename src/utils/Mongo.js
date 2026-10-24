@@ -333,4 +333,4 @@ async function removeUpcomingMessageRef(guildId, messageId) {
   });
 }
 
-module.exports = { connectToMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getOrganisationFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary, getDiscordServersByOrganisationId, saveUpcomingMessageRef, removeUpcomingMessageRef };
+module.exports = { connectToMongoDB, closeMongoDB, db, setup, getOrganisationsFromDiscordUserId, addDiscordServer, deleteDiscordServer, linkDiscordServerToTidyHQ, getOrganisationIdFromDiscordServerId, getOrganisationFromDiscordServerId, setDiscordPermissionRoles, getDiscordServer, getEvents, getEventSummary, getDiscordServersByOrganisationId, saveUpcomingMessageRef, removeUpcomingMessageRef };

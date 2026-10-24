@@ -12,6 +12,8 @@ module.exports = function setupQueueListener(client) {
         }
     });
 
+    client.workerQueue = workerQueue;
+
     workerQueue.on('global:completed', async (jobId) => {
         const job = await workerQueue.getJob(jobId);
         if (!job) return;
